@@ -1,0 +1,33 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "pg": "^8.13.1"
+  },
+  "name": "eau-server",
+  "version": "1.0.0",
+  "description": "EAU Server REST API and Database",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harshpatel0/eau-server.git"
+  },
+  "keywords": [
+    "eau",
+    "eau-server",
+    "expressiveartsunion",
+    "samaj",
+    "union",
+    "dispatch"
+  ],
+  "author": "Harsh Patel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/harshpatel0/eau-server/issues"
+  },
+  "homepage": "https://github.com/harshpatel0/eau-server#readme"
+}
