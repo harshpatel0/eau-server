@@ -1,13 +1,15 @@
 const express = require("express");
 const app = express();
 const pool = require("./db");
+const e = require("express");
 
 app.use(express.json());
 
-app.get("/all-articles-list", async (_, res) => {
+app.get("/articles/all", async (_, res) => {
   try {
     const allArticles = await pool.query(
-      "SELECT Articles.article_id, Articles.title, Author.name AS author_name FROM Articles JOIN Author ON Articles.author_id = Author.author_id;"
+      `SELECT Articles.article_id, Articles.title, Author.name AS author_name 
+      FROM Articles JOIN Author ON Articles.author_id = Author.author_id;`
     );
     res.json(allArticles.rows);
   } catch (err) {
@@ -22,21 +24,57 @@ app.get("/all-articles-list", async (_, res) => {
 });
 
 app.get("/articles/:id", async (req, res) => {
-  console.log("This route is running!");
   const articleId = req.params.id;
 
   try {
     const article = await pool.query(
-      `SELECT Articles.title, Articles.content, Author.name AS author_name, Author.tagline, Author.email FROM Articles JOIN Author ON Articles.author_id = Author.author_id WHERE article_id = ${articleId};`
+      `SELECT Articles.title, Articles.content, Author.name AS author_name, Author.tagline, Author.email
+       FROM Articles JOIN Author ON Articles.author_id = Author.author_id
+       WHERE article_id = ${articleId};
+      `
     );
 
-    res.json(article.rows);
+    console.log(article.rows);
+
+    if (article.rows.length == 0) {
+      res.status(404).json({
+        Error: "Could not find the article",
+      });
+    } else {
+      res.json(article.rows);
+    }
   } catch (err) {
     console.log("An error occured when getting an article");
     console.log(err);
 
     res.status(500).json({
       Error: "An error occured when trying to retrieve this article",
+      ErrorCallback: err,
+    });
+  }
+});
+
+app.get("/author/:id", async (req, res) => {
+  const authorId = req.params.id;
+
+  try {
+    const author = await pool.query(
+      `
+SELECT name, tagline, email FROM Author
+WHERE author_id = ${authorId};   
+      `
+    );
+
+    if (author.rows.length == 0) {
+      res.status(404).json({
+        Error: "Could not find the author",
+      });
+    } else {
+      res.json(author.rows);
+    }
+  } catch (err) {
+    res.status(500).json({
+      Error: "An error occured when trying to retrieve this author",
       ErrorCallback: err,
     });
   }
@@ -58,6 +96,7 @@ app.get("/", async (_, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("The server has started");
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`The server has started on port ${PORT}`);
 });
