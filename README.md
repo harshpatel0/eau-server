@@ -1,2 +1,2 @@
-# eau-server
+# EAU Server
 EAU Website REST API and Database
