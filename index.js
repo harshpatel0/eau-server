@@ -1,9 +1,41 @@
 const express = require("express");
 const app = express();
 const pool = require("./db");
-const e = require("express");
+var cors = require("cors");
 
 app.use(express.json());
+app.use(cors());
+
+app.get("/dynamiccontent/:id", async (req, res) => {
+  const dynamiccontent_id = req.params.id;
+  console.log(dynamiccontent_id);
+
+  try {
+    const dynamicContent = await pool.query(
+      `
+SELECT * FROM DynamicContent
+WHERE content_id = $1;
+      `,
+      [dynamiccontent_id]
+    );
+
+    if (dynamicContent.rows.length == 0) {
+      res.status(404).json({
+        Error: "Could not find the dynamic content",
+      });
+    } else {
+      res.json(dynamicContent.rows);
+    }
+  } catch (err) {
+    console.log("An error occured when getting the dynamic content");
+    console.log(err);
+
+    res.status(500).json({
+      Error: "An error occured when trying to retrieve this dynamic content",
+      ErrorCallback: err,
+    });
+  }
+});
 
 app.get("/articles/all", async (_, res) => {
   try {
@@ -30,8 +62,9 @@ app.get("/articles/:id", async (req, res) => {
     const article = await pool.query(
       `SELECT Articles.title, Articles.content, Author.name AS author_name, Author.tagline, Author.email
        FROM Articles JOIN Author ON Articles.author_id = Author.author_id
-       WHERE article_id = ${articleId};
-      `
+       WHERE article_id = $1;
+      `,
+      [articleId]
     );
 
     console.log(article.rows);
@@ -61,8 +94,9 @@ app.get("/author/:id", async (req, res) => {
     const author = await pool.query(
       `
 SELECT name, tagline, email FROM Author
-WHERE author_id = ${authorId};   
-      `
+WHERE author_id = $1;   
+      `,
+      [authorId]
     );
 
     if (author.rows.length == 0) {
