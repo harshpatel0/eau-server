@@ -37,10 +37,43 @@ WHERE content_id = $1;
   }
 });
 
+app.get("/articles/featured/", async (req, res) => {
+  try {
+    const featuredArticles = await pool.query(
+      `
+      SELECT
+         Articles.article_id,
+         Articles.title,
+         Articles.image_url,
+         Author.name AS author_name,
+         FeaturedArticles.featured_date
+       FROM 
+         FeaturedArticles
+       JOIN 
+         Articles ON FeaturedArticles.article_id = Articles.article_id
+       JOIN 
+         Author ON Articles.author_id = Author.author_id
+       ORDER BY 
+         FeaturedArticles.featured_date DESC
+       LIMIT 3;
+      `
+    );
+    res.json(featuredArticles.rows);
+  } catch (err) {
+    console.log("Error Occured when /articles/featured route was called");
+    console.log(err);
+
+    res.status(500).json({
+      Error: "An Error Occured when retrieving featured articles",
+      ErrorCallback: err,
+    });
+  }
+});
+
 app.get("/articles/all", async (_, res) => {
   try {
     const allArticles = await pool.query(
-      `SELECT Articles.article_id, Articles.title, Author.name AS author_name 
+      `SELECT Articles.article_id, Articles.title, Author.name AS author_name, Articles.image_url
       FROM Articles JOIN Author ON Articles.author_id = Author.author_id;`
     );
     res.json(allArticles.rows);
@@ -60,14 +93,12 @@ app.get("/articles/:id", async (req, res) => {
 
   try {
     const article = await pool.query(
-      `SELECT Articles.title, Articles.content, Author.name AS author_name, Author.tagline, Author.email
+      `SELECT Articles.title, Articles.content, Articles.image_url, Author.name AS author_name, Author.tagline, Author.email
        FROM Articles JOIN Author ON Articles.author_id = Author.author_id
        WHERE article_id = $1;
       `,
       [articleId]
     );
-
-    console.log(article.rows);
 
     if (article.rows.length == 0) {
       res.status(404).json({
