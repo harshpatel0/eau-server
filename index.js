@@ -1,14 +1,15 @@
 const express = require("express");
 const app = express();
 const pool = require("./db");
+const compression = require("compression");
 var cors = require("cors");
 
 app.use(express.json());
 app.use(cors());
+app.use(compression());
 
 app.get("/dynamiccontent/:id", async (req, res) => {
   const dynamiccontent_id = req.params.id;
-  console.log(dynamiccontent_id);
 
   try {
     const dynamicContent = await pool.query(
@@ -45,6 +46,7 @@ app.get("/articles/featured/", async (req, res) => {
          Articles.article_id,
          Articles.title,
          Articles.image_url,
+         Articles.public,
          Author.name AS author_name,
          FeaturedArticles.featured_date
        FROM 
@@ -53,9 +55,8 @@ app.get("/articles/featured/", async (req, res) => {
          Articles ON FeaturedArticles.article_id = Articles.article_id
        JOIN 
          Author ON Articles.author_id = Author.author_id
-       ORDER BY 
-         FeaturedArticles.featured_date DESC
-       LIMIT 3;
+       ORDER BY
+          FeaturedArticles
       `
     );
     res.json(featuredArticles.rows);
@@ -73,7 +74,7 @@ app.get("/articles/featured/", async (req, res) => {
 app.get("/articles/all", async (_, res) => {
   try {
     const allArticles = await pool.query(
-      `SELECT Articles.article_id, Articles.title, Author.name AS author_name, Articles.image_url
+      `SELECT Articles.article_id, Articles.title, Author.name AS author_name, Articles.image_url, Articles.public
       FROM Articles JOIN Author ON Articles.author_id = Author.author_id;`
     );
     res.json(allArticles.rows);
@@ -93,7 +94,7 @@ app.get("/articles/:id", async (req, res) => {
 
   try {
     const article = await pool.query(
-      `SELECT Articles.title, Articles.content, Articles.image_url, Author.name AS author_name, Author.tagline, Author.email
+      `SELECT Articles.title, Articles.content, Articles.image_url, Articles.public, Author.name AS author_name, Author.tagline, Author.email
        FROM Articles JOIN Author ON Articles.author_id = Author.author_id
        WHERE article_id = $1;
       `,
