@@ -42,21 +42,21 @@ app.get("/articles/featured/", async (req, res) => {
   try {
     const featuredArticles = await pool.query(
       `
-      SELECT
-         Articles.article_id,
-         Articles.title,
-         Articles.image_url,
-         Articles.public,
-         Author.name AS author_name,
-         FeaturedArticles.featured_date
-       FROM 
-         FeaturedArticles
-       JOIN 
-         Articles ON FeaturedArticles.article_id = Articles.article_id
-       JOIN 
-         Author ON Articles.author_id = Author.author_id
-       ORDER BY
-          FeaturedArticles
+SELECT
+   Articles.article_id,
+   Articles.title,
+   Articles.image_url,
+   Articles.public,
+   Author.name AS author_name,
+   FeaturedArticles.featured_date
+FROM 
+   FeaturedArticles
+JOIN 
+   Articles ON FeaturedArticles.article_id = Articles.article_id
+JOIN 
+   Author ON Articles.author_id = Author.author_id
+ORDER BY
+   FeaturedArticles.featured_date DESC;
       `
     );
     res.json(featuredArticles.rows);
@@ -74,8 +74,20 @@ app.get("/articles/featured/", async (req, res) => {
 app.get("/articles/all", async (_, res) => {
   try {
     const allArticles = await pool.query(
-      `SELECT Articles.article_id, Articles.title, Author.name AS author_name, Articles.image_url, Articles.public
-      FROM Articles JOIN Author ON Articles.author_id = Author.author_id;`
+      `
+SELECT
+  Articles.article_id,
+  Articles.title,
+  Author.name AS author_name,
+  Articles.image_url,
+  Articles.public
+FROM
+  Articles
+JOIN 
+  Author ON Articles.author_id = Author.author_id
+ORDER BY
+  Articles.title ASC;
+`
     );
     res.json(allArticles.rows);
   } catch (err) {
