@@ -80,7 +80,8 @@ SELECT
   Articles.title,
   Author.name AS author_name,
   Articles.image_url,
-  Articles.public
+  Articles.public,
+  Articles.published_date
 FROM
   Articles
 JOIN 
@@ -106,9 +107,22 @@ app.get("/articles/:id", async (req, res) => {
 
   try {
     const article = await pool.query(
-      `SELECT Articles.title, Articles.content, Articles.image_url, Articles.public, Author.name AS author_name, Author.tagline, Author.email
-       FROM Articles JOIN Author ON Articles.author_id = Author.author_id
-       WHERE article_id = $1;
+      `
+      SELECT
+        Articles.title,
+        Articles.content, 
+        Articles.image_url, 
+        Articles.public,
+        Articles.published_date,
+        Author.name AS author_name, 
+        Author.tagline, 
+        Author.email
+      FROM
+        Articles
+      JOIN
+        Author ON Articles.author_id = Author.author_id
+      WHERE
+        article_id = $1;
       `,
       [articleId]
     );
