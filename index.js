@@ -48,15 +48,12 @@ SELECT
    Articles.image_url,
    Articles.public,
    Author.name AS author_name,
-   FeaturedArticles.featured_date
 FROM 
    FeaturedArticles
 JOIN 
    Articles ON FeaturedArticles.article_id = Articles.article_id
 JOIN 
    Author ON Articles.author_id = Author.author_id
-ORDER BY
-   FeaturedArticles.featured_date DESC;
       `
     );
     res.json(featuredArticles.rows);
