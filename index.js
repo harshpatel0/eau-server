@@ -48,6 +48,7 @@ SELECT
    Articles.image_url,
    Articles.public,
    Author.name AS author_name,
+   FeaturedArticles.featured_id
 FROM 
    FeaturedArticles
 JOIN 
